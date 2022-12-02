@@ -49,11 +49,14 @@ def luo_laatikot(lkm, raja):
         laatikkolista.append(laatikko.copy())
         laatikkolista[i]["x"] = randx
         laatikkolista[i]["y"] = randy
-
+    randx = random.randint(2*raja, IKKUNAN_LEVEYS-raja)
     for i in range(lkm - 6):
-        randx = random.randint(2*raja, IKKUNAN_LEVEYS-raja)
         matolista.append(mato.copy())
-        matolista[i]["x"] = randx
+        if i == 0:
+            matolista[i]["x"] = randx
+        matolista[i]["x"] = matolista[i-1]["x"] + 160
+        if matolista[i]["x"]+80>IKKUNAN_LEVEYS:
+            matolista[i]["x"] -= 800
         matolista[i]["y"] = randy + 500
     sorsat = lkm - 6
     peli["laatikot"] = laatikkolista
@@ -86,7 +89,7 @@ def random_kartta():
     """
     Luo random kartan.
     """
-    luku = random.randint(7, 10)
+    luku = random.randint(7, 9)
     kentta = luo_laatikot(luku, 200)
     return kentta
 
@@ -152,7 +155,6 @@ def paivita(kulunut_aika):
 if __name__ == "__main__":
     print("PELI ALKAA")
     luo_laatikot(10,20)
-    #pudota(testilista)
     haravasto.lataa_kuvat("spritet")
     haravasto.lataa_sorsa("spritet")
     haravasto.luo_ikkuna(leveys=IKKUNAN_LEVEYS, korkeus=IKKUNAN_KORKEUS)

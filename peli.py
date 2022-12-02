@@ -1,4 +1,11 @@
+"""
+SORSAPELI
+Tekijä: Valtteri Jokisaari
+"""
+
+
 import math
+import os
 import haravasto
 import laatikot
 
@@ -6,29 +13,6 @@ import laatikot
 IKKUNAN_LEVEYS = 1200
 IKKUNAN_KORKEUS = 600
 PUTOAMISKIIHTYVYYS = 1.5
-
-peli = {
-    "x": 100,
-    "y": 100,
-    "ritsax": 110,
-    "ritsay": 110,
-    "kulma": 0,
-    "voima": 0,
-    "x_nopeus": 0,
-    "y_nopeus": 0,
-    "lennossa": False,
-    "maassa": [],
-    "sorsat" : 3,
-    "laatikot": [],
-    "matolista" : [],
-    "taso": 1,
-    "random": False,
-    "voitto" : 0,
-    "raahaus": False,
-    "pisteet": [],
-    "menu": True,
-    "kentät": 3
-}
 
 hiiripos = {
     "x": 0,
@@ -53,18 +37,14 @@ def alkutila(kutsu=0):
 
 
     if not peli["random"]:
-        if peli["taso"] == 1:
-            peli["laatikot"], peli["matolista"], peli["sorsat"] = lataa_kartta(1)
-        elif peli["taso"] == 2:
-            peli["laatikot"], peli["matolista"], peli["sorsat"] = lataa_kartta(2)
-        else:
-            peli["laatikot"], peli["matolista"], peli["sorsat"] = lataa_kartta(3)
+        peli["laatikot"], peli["matolista"], peli["sorsat"] = lataa_kartta(peli["taso"])
+
 def alusta_peli(kutsu=0):
     """
     Asettaa pelin takaisin alkutilaan,
     eli sorsan lähtöpaikkaan, sen nopeudet nollaan, sekä lentotilan epätodeksi.
     """
-    peli["kentät"] = 3
+    peli["kentät"] = karttojenlkm()
     peli["menu"] = False
     peli["random"] = False
     peli["laatikot"], peli["matolista"], peli["sorsat"] = lataa_kartta(1)
@@ -140,6 +120,17 @@ def tarkistamadot():
             madot -= 1
     return madot
 
+def karttojenlkm():
+    """
+    Tarkistaa pelikansion karttojen lukumäärän.
+    """
+    kartat = 0
+    for tiedosto in os.listdir():
+        if tiedosto.startswith("kartta") and tiedosto.endswith(".json"):
+            kartat += 1
+    return kartat
+
+
 def piirra():
     """
     Tämä funktio piirtää taustan, sorsat, pelitila ruudut.
@@ -154,10 +145,11 @@ def piirra():
     haravasto.piirra_ruudut()
 
     if peli["menu"]:
-        teksti("TERVETULOA SORSAPELIINI!", 200, 330,(255, 0, 0, 255),koko=42)
+        teksti("TERVETULOA SORSAPELIINI!", 200, 350,(255, 0, 0, 255),koko=42)
         lisaa_ruutu("menukuva", 400, 350)
         haravasto.piirra_ruudut()
         teksti("PAINA     , aloitaaksesi normaalin pelin.", 200, 270,(0, 0, 0, 255),koko=30)
+        teksti("Karttoja ladattu pelikansiosta: {}".format(karttojenlkm()), 200, 310, koko=15)
         teksti("'A'", 340, 270,(255, 0, 255, 255),koko=30)
         teksti("PAINA     , mikäli haluat pelata satunnaisia karttoja", 200, 210,(0, 0, 0, 255),koko=30)
         teksti("'S'", 340, 210,(255, 0, 255, 255),koko=30)
@@ -237,7 +229,7 @@ def piirra():
     )
     #Voittomenun piirto
     if peli["voitto"] == 1:
-        if peli["taso"] == 3 and not peli["random"]:
+        if peli["taso"] == karttojenlkm() and not peli["random"]:
             teksti("VOITIT PELIN!!", 300, 330,(50, 255, 50, 255),koko=42)
             teksti("PELAA UUDELLEEN PAINAMALLA", 300, 300,(0, 0, 0, 255),koko=20)
             teksti("'A'", 770, 300,(255, 0, 255, 255),koko=25)
@@ -269,7 +261,7 @@ def nappain(sym, mods):
         if not peli["random"]:
             alkutila()
     if sym == key.A:
-        if peli["menu"] or (peli["taso"] == 3 and peli["voitto"]):
+        if peli["menu"] or (peli["taso"] == karttojenlkm() and peli["voitto"]):
             alusta_peli()
     if sym == key.M:
         alusta_peli()
@@ -335,11 +327,13 @@ def lentorata(kulunut_aika):
 
 def paivita(kulunut_aika):
     """
-    Päivittaaa ohjelman
+    Päivittää lennon, pudottaa laatikot ja tarkistaa madot.
     """
-
     if peli["menu"]:
         return
+
+    lento(kulunut_aika)
+
     laatikot.pudota(peli["laatikot"]+peli["matolista"])
     if 80<hiiripos["x"]<120 and 80<hiiripos["y"]<140 and hiiripos["nappi"] == 1:
         haravasto.aseta_raahaus_kasittelija(kasittele_raahaus)
@@ -360,16 +354,15 @@ def voitto(taso):
         peli["laatikot"], peli["matolista"], peli["sorsat"] = laatikot.random_kartta()
         peli["taso"] += 1
         return
-    if taso == 3:
+    if taso == karttojenlkm():
         return
     alkutila()
-    if taso == 1:
-        peli["laatikot"], peli["matolista"], peli["sorsat"] = lataa_kartta(2)
-        peli["taso"] = 2
-    elif taso == 2:
-        peli["laatikot"], peli["matolista"], peli["sorsat"] = lataa_kartta(3)
-        peli["taso"] = 3
-
+    try:
+        peli["laatikot"], peli["matolista"], peli["sorsat"] = lataa_kartta(taso+1)
+        peli["taso"] = taso + 1
+    except FileNotFoundError:
+        print("Karttaa ei löytynyt")
+        peli["menu"] = True
 
 def hiiri_kasittelija(hiirix, hiiriy, nappi, muokkausnapit):
     """
@@ -391,13 +384,33 @@ def lataa_kartta(numero):
     """
     Lataa kartan laatikot moduulin avulla
     """
-    if numero == 1:
-        kartta = laatikot.kartta(1)
-    elif numero == 2:
-        kartta = laatikot.kartta(2)
-    else:
-        kartta = laatikot.kartta(3)
+
+    kartta = laatikot.kartta(numero)
     return kartta
+
+peli = {
+    "x": 100,
+    "y": 100,
+    "ritsax": 110,
+    "ritsay": 110,
+    "kulma": 0,
+    "voima": 0,
+    "x_nopeus": 0,
+    "y_nopeus": 0,
+    "lennossa": False,
+    "maassa": [],
+    "sorsat" : 3,
+    "laatikot": [],
+    "matolista" : [],
+    "taso": 1,
+    "random": False,
+    "voitto" : 0,
+    "raahaus": False,
+    "pisteet": [],
+    "menu": True,
+    "kentät": karttojenlkm()
+}
+
 
 if __name__ == "__main__":
     haravasto.lataa_kuvat("spritet")
@@ -405,7 +418,6 @@ if __name__ == "__main__":
     haravasto.luo_ikkuna(leveys=IKKUNAN_LEVEYS, korkeus=IKKUNAN_KORKEUS)
     haravasto.aseta_piirto_kasittelija(piirra)
     haravasto.aseta_nappain_kasittelija(nappain)
-    haravasto.aseta_toistuva_kasittelija(lento)
     haravasto.aseta_toistuva_kasittelija(paivita)
     haravasto.aseta_toistuva_kasittelija(lentorata, 1/45)
     haravasto.aseta_hiiri_kasittelija(hiiri_kasittelija)
