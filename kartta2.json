@@ -1,0 +1,14 @@
+{	"laatikot": [
+			{"x": 1000, "y": 0, "w": 80, "h": 80, "tyyppi": "laatikko", "vy": 0}, 
+			{"x": 1000, "y": 520, "w": 80, "h": 80, "tyyppi": "laatikko", "vy": 0}, 
+			{"x": 1000, "y": 600, "w": 80, "h": 80, "tyyppi": "laatikko", "vy": 0},
+			{"x": 1000, "y": 700, "w": 80, "h": 80, "tyyppi": "laatikko", "vy": 0},
+			{"x": 450, "y": 0, "w": 200, "h": 100, "tyyppi": "aita", "vy": 0},
+			{"x": 450, "y": 100, "w": 200, "h": 100, "tyyppi": "aita", "vy": 0}
+			], 
+	"matolista": [
+			{"x": 1000, "y": 800, "w": 80, "h": 80, "tyyppi": "mato", "kuollut": 0, "vy": 0},
+			{"x": 920, "y": 600, "w": 80, "h": 80, "tyyppi": "mato", "kuollut": 0, "vy": 0}
+			], 
+	"sorsat": 3
+}

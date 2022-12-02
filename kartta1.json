@@ -1,0 +1,10 @@
+{	"laatikot": [
+			{"x": 900, "y": 0, "w": 80, "h": 80, "tyyppi": "laatikko", "vy": 0}, 
+			{"x": 900, "y": 520, "w": 80, "h": 80, "tyyppi": "laatikko", "vy": 0}, 
+			{"x": 820, "y": 600, "w": 80, "h": 80, "tyyppi": "laatikko", "vy": 0}
+			], 
+	"matolista": [
+			{"x": 900, "y": 600, "w": 80, "h": 80, "tyyppi": "mato", "kuollut": 0, "vy": 0}
+			], 
+	"sorsat": 3
+}
